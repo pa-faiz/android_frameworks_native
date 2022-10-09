@@ -434,6 +434,10 @@ SurfaceFlinger::SurfaceFlinger(Factory& factory) : SurfaceFlinger(factory, SkipI
 
     mDebugFlashDelay = base::GetUintProperty("debug.sf.showupdates"s, 0u);
 
+    property_get("debug.sf.disable_backpressure", value, "0");
+    mPropagateBackpressure = !atoi(value);
+    ALOGI_IF(!mPropagateBackpressure, "Disabling backpressure propagation");
+
     mBackpressureGpuComposition = base::GetBoolProperty("debug.sf.enable_gl_backpressure"s, true);
     ALOGI_IF(mBackpressureGpuComposition, "Enabling backpressure for GPU composition");
 
@@ -2459,7 +2463,7 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
     }
 
     if (pacesetterFrameTarget.isFramePending()) {
-        if (mBackpressureGpuComposition || pacesetterFrameTarget.didMissHwcFrame()) {
+        if (mPropagateBackpressure && (mBackpressureGpuComposition || pacesetterFrameTarget.didMissHwcFrame())) {
             scheduleCommit(FrameHint::kNone);
             return false;
         }
@@ -4168,6 +4172,9 @@ void SurfaceFlinger::initScheduler(const sp<const DisplayDevice>& display) {
     }
     if (mBackpressureGpuComposition) {
         features |= Feature::kBackpressureGpuComposition;
+    }
+    if (mPropagateBackpressure) {
+        features |= Feature::kPropagateBackpressure;
     }
 
     auto modulatorPtr = sp<VsyncModulator>::make(mVsyncConfiguration->getCurrentConfigs());
