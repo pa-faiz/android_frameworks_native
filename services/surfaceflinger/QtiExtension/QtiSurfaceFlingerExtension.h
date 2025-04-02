@@ -14,7 +14,6 @@
 #include <composer_extn_intf.h>
 #include <list>
 #include <map>
-#include <set>
 
 #include "../DisplayHardware/HWComposer.h"
 #include "../DisplayHardware/PowerAdvisor.h"
@@ -272,23 +271,6 @@ public:
       long long int position = 0;
     } mFileDump;
 
-    /*
-     * Methods for multiple displays
-     */
-    // enable/disable h/w composer event
-    // TODO: this should be made accessible only to EventThread
-    // main thread function to enable/disable h/w composer event
-    sp<DisplayDevice> qtiGetVsyncSource();
-    void qtiUpdateVsyncSource();
-    nsecs_t qtiGetVsyncPeriodFromHWC() const;
-    void qtiUpdateNextVsyncSource();
-    void qtiUpdateActiveVsyncSource();
-    bool qtiIsDummyDisplay(const sp<DisplayDevice>& display);
-    void qtiUpdateActiveDisplayOnRemove(PhysicalDisplayId id);
-    void qtiUpdateActiveDisplayOnPowerOn(PhysicalDisplayId id);
-    void qtiUpdateActiveDisplayOnPowerOff(PhysicalDisplayId id);
-    sp<DisplayDevice> qtiGetVsyncSourceForFence();
-
 private:
     SmomoIntf* qtiGetSmomoInstance(const uint32_t layerStackId) const;
     bool qtiIsInternalDisplay(const sp<DisplayDevice>& display);
@@ -326,7 +308,7 @@ private:
     bool mQtiAllowThermalFpsChange = false;
     bool mQtiRequestedContentFps = false;
     int mQtiFailedAttempts = 0;
-    std::set<uint32_t> mQtiHasScreenshotSet;
+    bool mQtiHasScreenshot = false;
 
     std::shared_ptr<IDisplayConfig> mQtiDisplayConfigAidl = nullptr;
     std::shared_ptr<DisplayConfigAidlCallbackHandler> mQtiAidlCallbackHandler = nullptr;
@@ -357,10 +339,6 @@ private:
     std::unordered_map<DisplayId, VisibleLayerInfo> mQtiVisibleLayerInfoMap;
 
     std::vector<SmomoInfo> mQtiSmomoInstances{};
-
-    sp<DisplayDevice> mQtiActiveVsyncSource = NULL;
-    sp<DisplayDevice> mQtiNextVsyncSource = NULL;
-    mutable std::recursive_mutex mQtiVsyncLock;
 };
 
 } // namespace android::surfaceflingerextension

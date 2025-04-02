@@ -152,24 +152,6 @@ public:
     void qtiDumpMini(std::string& result) override;
     status_t qtiDoDumpContinuous(int fd, const DumpArgs& args) override;
     void qtiDumpDrawCycle(bool prePrepare) override;
-
-    /*
-     * Methods for multiple displays
-     */
-    // enable/disable h/w composer event
-    // TODO: this should be made accessible only to EventThread
-    // main thread function to enable/disable h/w composer event
-    sp<DisplayDevice> qtiGetVsyncSource();
-    void qtiUpdateVsyncSource();
-    nsecs_t qtiGetVsyncPeriodFromHWC() const;
-    void qtiUpdateNextVsyncSource();
-    void qtiUpdateActiveVsyncSource();
-    bool qtiIsDummyDisplay(const sp<DisplayDevice>& display);
-    void qtiUpdateActiveDisplayOnRemove(PhysicalDisplayId id);
-    void qtiUpdateActiveDisplayOnPowerOn(PhysicalDisplayId id);
-    void qtiUpdateActiveDisplayOnPowerOff(PhysicalDisplayId id);
-    sp<DisplayDevice> qtiGetVsyncSourceForFence();
-
 private:
     SurfaceFlinger* mQtiFlinger = nullptr;
 };
